@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简历专家 — JD 定制简历优化 Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ========== Design Tokens (Ant Design inspired) ========== */
+:root {
+  --primary: #1677ff;
+  --primary-hover: #4096ff;
+  --primary-bg: #e6f4ff;
+  --primary-text: #1677ff;
+  --bg: #ffffff;
+  --bg-layout: #f5f5f5;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #f5f5f5;
+  --bg-input: #ffffff;
+  --text-primary: rgba(0,0,0,0.88);
+  --text-secondary: rgba(0,0,0,0.65);
+  --text-tertiary: rgba(0,0,0,0.45);
+  --border: #d9d9d9;
+  --border-light: #f0f0f0;
+  --border-input: #d9d9d9;
+  --danger: #ff4d4f;
+  --danger-bg: #fff2f0;
+  --danger-border: #ffccc7;
+  --success: #52c41a;
+  --success-bg: #f6ffed;
+  --warning: #faad14;
+  --warning-bg: #fffbe6;
+  --purple: #722ed1;
+  --purple-bg: #f9f0ff;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-card: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+  --shadow-modal: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:14px; }
+body {
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: var(--bg-layout);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== Top Nav ========== */
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.top-nav-left { display: flex; align-items: center; gap: 32px; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.logo-text { font-size: 16px; font-weight: 600; color: var(--text-primary); letter-spacing: 0; }
+.nav-links { display: flex; gap: 4px; }
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links a:hover { color: var(--primary); background: var(--primary-bg); }
+.top-nav-right { display: flex; align-items: center; gap: 8px; }
+
+/* ========== Buttons ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 15px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  height: 32px;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-secondary {
+  background: var(--bg);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+.btn-secondary:hover { color: var(--primary); border-color: var(--primary); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+.btn-ghost:hover { color: var(--primary); background: var(--primary-bg); }
+.btn-sm { height: 28px; padding: 2px 10px; font-size: 13px; border-radius: 4px; }
+.btn-lg { height: 36px; padding: 4px 20px; font-size: 14px; }
+.btn-block { width: 100%; height: 40px; font-size: 14px; border-radius: var(--radius-sm); }
+
+/* ========== Main Layout ========== */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ========== Sidebar ========== */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-sidebar);
+  overflow-y: auto;
+}
+.sidebar-header { padding: 16px 24px 12px; }
+.sidebar-header h3 { font-size: 12px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0; text-transform: none; }
+.step-list { list-style: none; padding: 4px 12px; }
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  margin: 2px 0;
+}
+.step-item:hover { background: var(--bg-hover); }
+.step-item.active { background: var(--primary-bg); color: var(--primary); }
+.step-item.completed { color: var(--text-secondary); }
+.step-number {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+  background: var(--bg);
+}
+.step-item.active .step-number {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+.step-item.completed .step-number {
+  border-color: var(--success);
+  background: var(--success);
+  color: #fff;
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.sidebar-footer .match-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ========== Main Content ========== */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px;
+  position: relative;
+}
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ========== Typography ========== */
+.page-header { margin-bottom: 20px; }
+.page-header h1 { font-size: 20px; font-weight: 600; letter-spacing: 0; margin-bottom: 4px; color: var(--text-primary); }
+.page-desc { color: var(--text-secondary); font-size: 14px; }
+
+/* ========== Cards ========== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-header h3 { font-size: 16px; font-weight: 600; margin: 0; }
+
+/* ========== Form (Ant Design style) ========== */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+.form-group label .required { color: var(--danger); margin-left: 4px; font-family: SimSun, sans-serif; }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 4px 11px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  background: var(--bg-input);
+  transition: all 0.2s;
+  outline: none;
+  resize: vertical;
+  height: 32px;
+  line-height: 1.5714;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--text-tertiary); }
+.form-group textarea { line-height: 1.6; padding: 8px 11px; min-height: 80px; }
+.form-group input:hover,
+.form-group textarea:hover,
+.form-group select:hover { border-color: var(--primary); }
+.form-actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-start; }
+
+/* Select chevron */
+.select-wrapper { position: relative; }
+.select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 30px;
+  cursor: pointer;
+  width: 100%;
+}
+.select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* ========== Tables ========== */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-layout);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+  color: var(--text-primary);
+}
+tbody tr:hover { background: var(--bg-layout); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ========== Badges ========== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 7px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1;
+}
+.badge-blue { background: var(--primary-bg); color: var(--primary); }
+.badge-green { background: var(--success-bg); color: var(--success); }
+.badge-red { background: var(--danger-bg); color: var(--danger); }
+.badge-orange { background: var(--warning-bg); color: var(--warning); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-gray { background: var(--bg-layout); color: var(--text-secondary); border: 1px solid var(--border-light); }
+
+/* ========== Tags ========== */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  margin: 0 4px 4px 0;
+}
+.tag-blue { background: var(--primary-bg); color: var(--primary); border-color: #91caff; }
+.tag-purple { background: var(--purple-bg); color: var(--purple); border-color: #d3adf7; }
+
+/* ========== Progress ========== */
+.progress-bar { height: 6px; background: var(--bg-layout); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.progress-blue { background: var(--primary); }
+.progress-green { background: var(--success); }
+.progress-orange { background: var(--warning); }
+.progress-red { background: var(--danger); }
+
+/* ========== Score ========== */
+.score-ring {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--border);
+  flex-shrink: 0;
+}
+.score-ring .score-num { font-size: 24px; font-weight: 600; line-height: 1; }
+.score-ring .score-label { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.score-ring.blue { border-color: var(--primary); }
+.score-ring.blue .score-num { color: var(--primary); }
+.score-ring.green { border-color: var(--success); }
+.score-ring.green .score-num { color: var(--success); }
+
+/* ========== Question Cards ========== */
+.question-card {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+}
+.question-card .q-num { font-size: 12px; font-weight: 500; color: var(--primary); margin-bottom: 6px; }
+.question-card .q-text { font-weight: 500; margin-bottom: 12px; font-size: 14px; color: var(--text-primary); }
+.question-card textarea {
+  width: 100%;
+  min-height: 72px;
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 8px 11px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  outline: none;
+  resize: vertical;
+  line-height: 1.5714;
+}
+.question-card textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+.question-card .q-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.question-card .q-done { color: var(--success); font-size: 13px; font-weight: 500; align-self: center; }
+.bullet-output {
+  background: var(--bg-layout);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+.bullet-output h4 { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+.bullet-output ul { padding-left: 16px; }
+.bullet-output li { margin-bottom: 4px; font-size: 13px; color: var(--text-secondary); }
+
+/* ========== Style Toggles ========== */
+.style-toggles { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.style-toggle {
+  padding: 3px 11px;
+  height: 28px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+.style-toggle:hover { color: var(--primary); border-color: var(--primary); }
+.style-toggle.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ========== Comparison ========== */
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.comparison-col h4 { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+.diff-del { text-decoration: line-through; color: var(--danger); }
+.diff-ins { color: var(--success); font-weight: 500; }
+.reason-box {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--purple-bg);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--purple);
+}
+.risk-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid #ffe58f;
+  margin-top: 6px;
+  margin-right: 4px;
+}
+
+/* ========== Resume ========== */
+.resume-doc {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-card);
+}
+.resume-section { margin-bottom: 24px; }
+.resume-section:last-child { margin-bottom: 0; }
+.resume-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+.resume-name { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+.resume-title { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
+.resume-contact { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
+.resume-contact span::before { content: ''; display: inline-block; width: 3px; height: 3px; background: var(--text-tertiary); border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+.kv-item { font-size: 13px; }
+.kv-item .kv-label { color: var(--text-tertiary); }
+.exp-item { margin-bottom: 14px; }
+.exp-item .exp-title { font-weight: 500; font-size: 14px; }
+.exp-item .exp-meta { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.exp-item .exp-desc { font-size: 13px; color: var(--text-secondary); }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ========== Interview ========== */
+.interview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.interview-col h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.int-card {
+  padding: 10px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  font-size: 13px;
+  background: var(--bg-card);
+}
+.int-card .int-q { font-weight: 500; margin-bottom: 4px; color: var(--text-primary); }
+.int-card .int-hint { color: var(--text-secondary); }
+.int-card.alert { border-color: var(--warning); background: var(--warning-bg); }
+.int-card.good { border-color: var(--success); background: var(--success-bg); }
+
+/* ========== Upload ========== */
+.upload-area {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-card);
+}
+.upload-area:hover { border-color: var(--primary); background: var(--primary-bg); }
+.upload-area .upload-icon { font-size: 32px; color: var(--text-tertiary); margin-bottom: 8px; }
+.upload-area .upload-text { font-size: 14px; color: var(--text-secondary); }
+.upload-area .upload-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+.upload-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+  font-size: 13px;
+  background: var(--bg-card);
+}
+.upload-file .file-icon { color: var(--primary); }
+.upload-file .file-name { flex: 1; color: var(--text-primary); }
+.upload-file .file-size { color: var(--text-tertiary); font-size: 12px; }
+.upload-file .file-remove { color: var(--text-tertiary); cursor: pointer; font-size: 16px; border: none; background: none; padding: 2px 6px; border-radius: 4px; }
+.upload-file .file-remove:hover { color: var(--danger); background: var(--danger-bg); }
+.upload-extract-status { margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+.upload-extract-status.success { color: var(--success); }
+.upload-extract-status.error { color: var(--danger); }
+
+/* ========== Loading ========== */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  flex-direction: column;
+  gap: 16px;
+}
+.loading-overlay.show { display: flex; }
+.loading-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--text-secondary); }
+
+/* ========== Modal ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  padding: 24px;
+  min-width: 400px;
+  max-width: 560px;
+  width: 90%;
+}
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.config-help { margin-top: 5px; color: var(--text-tertiary); font-size: 12px; line-height: 1.5; }
+.config-error { display: none; margin: 12px 0 0; padding: 8px 10px; border: 1px solid var(--danger-border); border-radius: var(--radius-sm); background: var(--danger-bg); color: var(--danger); font-size: 13px; line-height: 1.5; }
+.config-error.show { display: block; }
+.modal-actions .btn:disabled { opacity: .65; cursor: not-allowed; }
+.btn-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; }
+
+/* ========== Toast ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 9px 16px;
+  background: rgba(0,0,0,0.88);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-modal);
+  z-index: 200;
+  display: none;
+  animation: toastIn 0.3s ease;
+}
+.toast.show { display: block; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== Floating Widgets ========== */
+.float-widgets { position: fixed; right: 24px; bottom: 24px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.float-file-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-card);
+}
+.float-file-size .cloud-icon { color: var(--primary); }
+.float-chat {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.3);
+  transition: all 0.2s;
+}
+.float-chat:hover { background: var(--primary-hover); transform: scale(1.05); }
+
+/* ========== Analysis Sections ========== */
+.mb-0 { margin-bottom: 0; }
+.mb-4 { margin-bottom: 4px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.justify-between { justify-content: space-between; }
+.text-sm { font-size: 12px; }
+.text-muted { color: var(--text-tertiary); }
+.text-secondary { color: var(--text-secondary); }
+.fw-600 { font-weight: 600; }
+.tag-row { display: flex; flex-wrap: wrap; margin-top: 6px; }
+.divider { border: none; border-top: 1px solid var(--border-light); margin: 16px 0; }
+.analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.analysis-card {
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+.analysis-card h4 { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+.analysis-card ul { list-style: none; padding: 0; }
+.analysis-card li { font-size: 13px; padding: 3px 0; color: var(--text-primary); }
+.analysis-card li::before { content: '• '; color: var(--primary); }
+.dim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+.dim-card { padding: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-layout); }
+.dim-card .dim-name { font-weight: 500; font-size: 13px; margin-bottom: 6px; }
+.dim-card .dim-score { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.dim-card .dim-bar { margin-top: 6px; }
+.issue-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.issue-item:last-child { border-bottom: none; }
+.score-row { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+.score-row .score-info { flex: 1; }
+.score-row .score-info h3 { margin-bottom: 4px; font-size: 16px; }
+.score-row .score-info p { color: var(--text-secondary); font-size: 13px; }
+
+/* Custom select arrow hidden via wrapper */
+.form-group select { height: 32px; }
+
+/* ========== Steps responsive ========== */
+@media (max-width: 1024px) {
+  .sidebar { width: 200px; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .analysis-grid { grid-template-columns: 1fr; }
+  .interview-grid { grid-template-columns: 1fr; }
+  .comparison-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="top-nav">
+  <div class="top-nav-left">
+    <div class="logo">
+      <div class="logo-icon">简</div>
+      <span class="logo-text">简历专家</span>
+    </div>
+    <div class="nav-links">
+      <a href="#">产品介绍</a>
+      <a href="#">使用文档</a>
+      <a href="#">定价</a>
+    </div>
+  </div>
+  <div class="top-nav-right">
+    <button class="btn btn-ghost btn-sm" onclick="showLLMConfig()" id="btn-api">API 配置</button>
+    <button class="btn btn-ghost btn-sm" onclick="useExampleData()">示例数据</button>
+    <button class="btn btn-secondary btn-sm" onclick="copyFinalResume()">导出简历</button>
+  </div>
+</nav>
+
+<!-- Body -->
+<div class="app-body">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h3>分析流程</h3>
+      <div class="match-score" id="sidebar-score" style="display:none;">
+        <div class="score-ring blue" style="width:44px;height:44px;border-width:2px;">
+          <span class="score-num" style="font-size:14px;" id="sidebar-score-num">—</span>
+          <span class="score-label" style="font-size:9px;">匹配</span>
+        </div>
+        <span class="text-sm text-secondary">综合匹配度</span>
+      </div>
+    </div>
+    <ul class="step-list" id="step-list">
+      <li class="step-item active" data-step="1" onclick="goToStep(1)">
+        <span class="step-number">1</span><span>输入材料</span>
+      </li>
+      <li class="step-item" data-step="2" onclick="goToStep(2)">
+        <span class="step-number">2</span><span>JD 解析</span>
+      </li>
+      <li class="step-item" data-step="3" onclick="goToStep(3)">
+        <span class="step-number">3</span><span>简历诊断</span>
+      </li>
+      <li class="step-item" data-step="4" onclick="goToStep(4)">
+        <span class="step-number">4</span><span>匹配分析</span>
+      </li>
+      <li class="step-item" data-step="5" onclick="goToStep(5)">
+        <span class="step-number">5</span><span>经历追问</span>
+      </li>
+      <li class="step-item" data-step="6" onclick="goToStep(6)">
+        <span class="step-number">6</span><span>简历优化</span>
+      </li>
+      <li class="step-item" data-step="7" onclick="goToStep(7)">
+        <span class="step-number">7</span><span>最终简历</span>
+      </li>
+      <li class="step-item" data-step="8" onclick="goToStep(8)">
+        <span class="step-number">8</span><span>面试准备</span>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <span class="text-sm">简历专家 v1.0</span>
+      <span class="text-sm text-muted">本地分析</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loading-text">正在分析中…</div>
+    </div>
+
+    <!-- STEP 1: 输入材料 -->
+    <div class="step-panel active" id="step-1">
+      <div class="page-header">
+        <h1>输入材料</h1>
+        <p class="page-desc">提供你的目标岗位信息和原始简历内容，我们将为你生成定制化的优化方案。</p>
+      </div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>姓名</label>
+            <input type="text" id="inp-name" placeholder="请输入你的姓名">
+          </div>
+          <div class="form-group">
+            <label>目标岗位<span class="required">*</span></label>
+            <input type="text" id="inp-job-title" placeholder="如：AI 产品经理">
+          </div>
+          <div class="form-group">
+            <label>工作年限</label>
+            <div class="select-wrapper">
+              <select id="inp-years">
+                <option value="">请选择</option>
+                <option value="1-3">1-3 年</option>
+                <option value="3-5">3-5 年</option>
+                <option value="5-8">5-8 年</option>
+                <option value="8+">8 年以上</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>行业</label>
+            <input type="text" id="inp-industry" placeholder="如：企业服务/SaaS">
+          </div>
+          <div class="form-group">
+            <label>公司类型</label>
+            <div class="select-wrapper">
+              <select id="inp-company-type">
+                <option value="">请选择</option>
+                <option value="大厂">大厂</option>
+                <option value="独角兽">独角兽</option>
+                <option value="成长期">成长期</option>
+                <option value="创业公司">创业公司</option>
+                <option value="外企">外企</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>求职阶段</label>
+            <div class="select-wrapper">
+              <select id="inp-stage">
+                <option value="">请选择</option>
+                <option value="主动求职">主动求职</option>
+                <option value="被动求职">被动求职（HR 联系）</option>
+                <option value="内部转岗">内部转岗</option>
+                <option value="职业转型">职业转型</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>希望突出的能力</label>
+            <input type="text" id="inp-skills" placeholder="如：AI 产品能力、数据驱动决策">
+          </div>
+          <div class="form-group">
+            <label>目标公司类型偏好</label>
+            <input type="text" id="inp-company-pref" placeholder="如：AI 初创公司、B 端 SaaS">
+          </div>
+          <div class="form-group full-width">
+            <label>目标岗位 JD<span class="required">*</span></label>
+            <textarea id="inp-jd" rows="6" placeholder="粘贴目标岗位的职位描述…"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>原始简历<span class="required">*</span></label>
+            <div class="upload-area" id="resume-upload-area" onclick="document.getElementById('resume-file-input').click()">
+              <div class="upload-icon">☁</div>
+              <div class="upload-text">点击或拖拽上传简历文件（支持 Word / PDF）</div>
+              <div class="upload-hint">支持 .docx、含文字的 .pdf，文件大小不超过 10MB；扫描版 PDF 请使用 OCR 或粘贴正文</div>
+            </div>
+            <input type="file" id="resume-file-input" accept=".docx,.pdf" style="display:none" onchange="handleResumeUpload(event)">
+            <div id="uploaded-file-info"></div>
+            <div id="resume-extract-status" class="upload-extract-status" role="status" aria-live="polite"></div>
+            <textarea id="inp-resume" rows="6" placeholder="或者粘贴原始简历文本内容…" style="margin-top:12px;"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>补充信息（可选）</label>
+            <textarea id="inp-extra" rows="3" placeholder="补充背景信息、项目链接、业绩数据等…"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="useExampleData()">使用示例数据</button>
+          <button class="btn btn-primary btn-lg" onclick="startAnalysis()" id="btn-start">开始分析</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: JD 解析 -->
+    <div class="step-panel" id="step-2">
+      <div class="page-header">
+        <h1>JD 解析</h1>
+        <p class="page-desc">从目标岗位描述中提取核心要求，构建岗位能力画像。</p>
+      </div>
+      <div id="jd-result"></div>
+    </div>
+
+    <!-- STEP 3: 简历诊断 -->
+    <div class="step-panel" id="step-3">
+      <div class="page-header">
+        <h1>简历诊断</h1>
+        <p class="page-desc">评估当前简历与目标岗位的匹配程度，识别关键短板。</p>
+      </div>
+      <div id="diag-result"></div>
+    </div>
+
+    <!-- STEP 4: 匹配分析 -->
+    <div class="step-panel" id="step-4">
+      <div class="page-header">
+        <h1>匹配分析</h1>
+        <p class="page-desc">逐条对比 JD 要求与简历证据，定位覆盖缺口。</p>
+      </div>
+      <div id="match-result"></div>
+    </div>
+
+    <!-- STEP 5: 经历追问 -->
+    <div class="step-panel" id="step-5">
+      <div class="page-header">
+        <h1>经历追问</h1>
+        <p class="page-desc">通过追问挖掘经历细节，为简历优化提供素材。填写回答后可生成简历表达。</p>
+      </div>
+      <div id="question-result"></div>
+    </div>
+
+    <!-- STEP 6: 简历优化 -->
+    <div class="step-panel" id="step-6">
+      <div class="page-header">
+        <h1>简历优化</h1>
+        <p class="page-desc">对照原始简历，提供优化后的表达。尝试不同风格，找到最适合的版本。</p>
+      </div>
+      <div id="optimize-result"></div>
+    </div>
+
+    <!-- STEP 7: 最终简历 -->
+    <div class="step-panel" id="step-7">
+      <div class="page-header flex justify-between items-center">
+        <div>
+          <h1>最终简历</h1>
+          <p class="page-desc">基于所有分析结果生成的完整优化简历。</p>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="copyFinalResume()">📋 复制到剪贴板</button>
+      </div>
+      <div id="final-resume"></div>
+    </div>
+
+    <!-- STEP 8: 面试准备 -->
+    <div class="step-panel" id="step-8">
+      <div class="page-header">
+        <h1>面试准备</h1>
+        <p class="page-desc">基于你的简历和 JD，预测面试追问并准备应对材料。</p>
+      </div>
+      <div id="interview-result"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modal-title">提示</h3>
+    <p id="modal-desc">内容</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">关闭</button>
+      <button class="btn btn-primary btn-sm" id="modal-action" onclick="handleModalAction()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Floating Widgets -->
+<div class="float-widgets" id="float-widgets" style="display:none;">
+  <div class="float-file-size">
+    <span class="cloud-icon">☁</span>
+    <span id="float-file-name">—</span>
+    <span id="float-file-size">0 KBs</span>
+  </div>
+  <button class="float-chat" title="AI 助手" onclick="showModal('AI 助手', '当前处于本地分析模式，完整的 AI 对话功能需接入后端 API。', '关闭')">
+    ✦
+  </button>
+</div>
+
+<script>
+// ========== LLM config storage ==========
+function readLLMApiKey() {
+  try {
+    return window.localStorage.getItem('lm_api') || '';
+  } catch (error) {
+    console.warn('Cannot read API key preference from localStorage:', error);
+    return '';
+  }
+}
+
+function readLLMModel() {
+  try {
+    // Keep the API key and Endpoint ID in this browser for the local-only tool.
+    window.localStorage.removeItem('lm_key');
+    return window.localStorage.getItem('lm_model') || '';
+  } catch (error) {
+    console.warn('Cannot read model preference from localStorage:', error);
+    return '';
+  }
+}
+
+// ========== State ==========
+const state = {
+  currentStep: 1,
+  analyzed: false,
+  answers: {},
+  answersDone: {},
+  styleMode: 'default',
+  uploadedFileName: '',
+  uploadedFileSize: 0,
+  uploadedResumeText: '',
+  resumeParseError: '',
+  isResumeParsing: false,
+  resumeUploadRequestId: 0,
+  resumeUploadController: null,
+  analysisData: null,
+  isAnalyzing: false,
+  analysisSource: 'mock',
+  llmApiKey: readLLMApiKey(),
+  llmModel: readLLMModel(),
+  llmConfigSaving: false,
+};
+
+// ========== LLM Config ==========
+function showLLMConfig() {
+  showModal('LLM API 配置',
+    '<div><label for="lm-api-key" style="display:block;margin-bottom:4px;font-size:13px;color:var(--text-secondary)">ARK_API_KEY</label>' +
+    '<input id="lm-api-key" type="password" autocomplete="new-password" placeholder="输入你的火山方舟 API Key" style="width:100%;height:32px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 8px;font-size:13px;font-family:inherit;margin-bottom:12px;">' +
+    '<label for="lm-model" style="display:block;margin-bottom:4px;font-size:13px;color:var(--text-secondary)">Endpoint ID</label>' +
+    '<input id="lm-model" type="text" autocomplete="off" placeholder="填写方舟推理接入点 ID" style="width:100%;height:32px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 8px;font-size:13px;font-family:inherit;">' +
+    '<div class="config-help">API Key 和 Endpoint ID 保存在当前浏览器，并只发送给本机代理。</div></div>' +
+    '<div id="lm-error" class="config-error" role="alert" aria-live="polite"></div>',
+    '保存并使用', async function() {
+      await saveLLMConfig();
+    });
+  document.getElementById('lm-api-key').value = state.llmApiKey || '';
+  document.getElementById('lm-model').value = state.llmModel || '';
+  document.getElementById('modal-action').disabled = false;
+}
+
+function showConfigError(message) {
+  const errorEl = document.getElementById('lm-error');
+  if (!errorEl) return;
+  errorEl.textContent = message;
+  errorEl.classList.toggle('show', Boolean(message));
+}
+
+async function saveLLMConfig() {
+  if (state.llmConfigSaving) return;
+  const apiKeyEl = document.getElementById('lm-api-key');
+  const modelEl = document.getElementById('lm-model');
+  const saveButton = document.getElementById('modal-action');
+  if (!apiKeyEl || !modelEl || !saveButton) {
+    showConfigError('配置窗口未正确加载，请关闭后重新打开。');
+    return;
+  }
+  const apiKey = apiKeyEl.value.trim();
+  const model = modelEl.value.trim();
+  showConfigError('');
+  if (!apiKey) {
+    showConfigError('ARK_API_KEY 不能为空。');
+    apiKeyEl.focus();
+    return;
+  }
+  if (!model) {
+    showConfigError('Endpoint ID 不能为空。');
+    modelEl.focus();
+    return;
+  }
+
+  state.llmConfigSaving = true;
+  saveButton.disabled = true;
+  saveButton.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span> 正在保存…';
+  try {
+    // Yield once so the loading state paints before synchronous localStorage writes.
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const storage = window.localStorage;
+    storage.setItem('lm_api', apiKey);
+    storage.setItem('lm_model', model);
+    if (storage.getItem('lm_api') !== apiKey || storage.getItem('lm_model') !== model) {
+      throw new Error('浏览器没有保存 API 配置，请检查存储权限后重试。');
+    }
+    state.llmApiKey = apiKey;
+    state.llmModel = model;
+    closeModal();
+    showToast('模型配置已保存');
+  } catch (error) {
+    console.error('Unable to save LLM config:', error);
+    showConfigError('保存失败：浏览器无法写入模型配置。请通过本地开发服务器打开页面，并允许网站数据存储。');
+  } finally {
+    state.llmConfigSaving = false;
+    saveButton.disabled = false;
+    saveButton.textContent = '保存并使用';
+  }
+}
+
+// Send credentials only to the same-origin local proxy; it forwards them to Ark.
+async function callLLM(prompt) {
+  try {
+    const apiKey = String(state.llmApiKey || '').trim();
+    const endpoint = String(state.llmModel || '').trim();
+    if (!apiKey) throw new Error('请先在“API 配置”中填写 ARK_API_KEY。');
+    if (!endpoint) throw new Error('请先在“API 配置”中填写 Endpoint ID。');
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ark-api-key': apiKey,
+        'x-ark-endpoint': endpoint,
+      },
+      body: JSON.stringify({
+        temperature: 0.2,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    if (!resp.ok) {
+      const payload = await resp.json().catch(async () => ({ message: await resp.text().catch(() => '') }));
+      const code = payload.error?.code || payload.code || '';
+      const detail = payload.error?.message || payload.message || '';
+      const friendly = {
+        ARK_API_KEY_REQUIRED: '请先在“API 配置”中填写 ARK_API_KEY。',
+        ENDPOINT_REQUIRED: '请先在“API 配置”中填写方舟 Endpoint ID。',
+        UPSTREAM_TIMEOUT: '火山方舟请求超时，请稍后重试或检查网络。',
+        UPSTREAM_ERROR: '火山方舟返回调用错误。',
+        PROXY_ERROR: '本地代理处理请求失败。',
+      }[code];
+      throw new Error(friendly ? `${friendly}${detail ? `（${detail}）` : ''}` : `请求失败（HTTP ${resp.status}）${detail ? `：${detail}` : ''}`);
+    }
+    const data = await resp.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (typeof content === 'string' && content.trim()) return content.trim();
+    if (Array.isArray(content)) {
+      const text = content.map(part => part.text || '').join('').trim();
+      if (text) return text;
+    }
+    throw new Error('接口返回成功，但没有找到模型文本结果；请确认 Endpoint 使用 Chat Completions 格式。');
+  } catch (e) {
+    console.error('LLM call failed:', e);
+    if (e instanceof TypeError) {
+      throw new Error('无法连接本地代理服务，请检查代理服务是否已启动（项目目录终端执行 npm run server），或直接运行 npm run dev:all。');
+    }
+    throw e;
+  }
+}
+
+// ========== Example Data ==========
+const exampleData = {
+  name: '李明',
+  jobTitle: 'AI 产品经理',
+  years: '3-5',
+  industry: '企业服务/SaaS',
+  companyType: '成长期',
+  stage: '职业转型',
+  skills: 'AI 产品能力、数据驱动决策、B 端产品规划',
+  companyPref: 'AI 初创公司、B 端 SaaS',
+  jd: `【AI 产品经理】
+岗位职责：
+1. 负责公司 AI 产品线的产品规划、需求分析和产品设计，推动产品从 0 到 1 落地；
+2. 深入理解大语言模型（LLM）能力边界，探索 AI 在企业场景中的创新应用；
+3. 与算法、工程、运营团队紧密协作，制定产品路线图并推动迭代；
+4. 基于用户反馈和数据指标，持续优化产品体验，提升用户活跃度和留存率；
+5. 关注行业竞品动态，输出市场调研报告和竞品分析。
+
+任职要求：
+1. 本科及以上学历，计算机、人工智能等相关专业优先；
+2. 3 年以上产品经验，有 B 端 SaaS 或企业服务平台产品经验；
+3. 熟悉大语言模型（GPT/文心一言等）能力及应用场景；
+4. 具备数据敏感度，能通过数据分析驱动产品决策；
+5. 优秀的跨团队沟通能力和项目管理经验；
+6. 有 AI 产品从 0 到 1 落地经验者优先。
+
+隐性要求：
+- 对 AI 技术趋势有深度理解和独立判断
+- 能快速理解复杂业务场景并抽象为产品方案
+- 具备在资源有限情况下推动项目落地的能力`,
+  resume: `李明
+3-5 年产品经验 | 企业服务/SaaS 领域
+
+工作经历：
+某企业管理软件公司 · 产品经理 · 2021.06 - 至今
+- 负责 ERP 系统的需求分析和功能设计
+- 参与 WMS 仓储管理模块的迭代开发
+- 主导经营数据报表的设计与优化
+- 协助团队完成多个项目需求评审
+
+项目经历：
+ERP 系统升级项目
+- 升级了系统部分功能模块
+- 提升了系统稳定性
+
+技能：
+Axure、Visio、SQL、Python、Jira`,
+  extra: '曾主导数据报表项目，将报表生成效率提升约 40%。对 AI 在企业管理场景的应用有浓厚兴趣，自学了部分 LLM 应用开发知识。',
+};
+
+// ========== Mock Analysis Data ==========
+const mockAnalysis = {
+  jd: {
+    responsibilities: [
+      '负责 AI 产品线的产品规划、需求分析和产品设计，推动从 0 到 1 落地',
+      '深入理解 LLM 能力边界，探索 AI 在企业场景中的创新应用',
+      '与算法、工程、运营团队协作，制定产品路线图并推动迭代',
+      '基于用户反馈和数据指标优化产品体验，提升活跃度和留存率',
+      '关注竞品动态，输出市场调研报告和竞品分析',
+    ],
+    hardRequirements: [
+      '本科及以上学历，计算机/AI 等相关专业优先',
+      '3 年以上产品经验，有 B 端 SaaS 经验',
+      '熟悉大语言模型能力及应用场景',
+      '数据敏感度，能通过数据分析驱动产品决策',
+      '跨团队沟通能力和项目管理经验',
+    ],
+    softRequirements: [
+      '对 AI 技术趋势有深度理解和独立判断',
+      '能快速理解复杂业务场景并抽象为产品方案',
+      '在资源有限情况下推动项目落地的能力',
+    ],
+    keywords: ['AI 产品经理', 'LLM', '大语言模型', 'B 端 SaaS', '0 到 1', '数据驱动', '产品规划', '企业服务', '用户体验', '竞品分析'],
+    idealCandidate: '有 B 端 SaaS 产品经验，熟悉 AI/LLM 技术生态，具备从 0 到 1 落地经验的数据驱动型产品经理',
+    coreCapabilities: [
+      { name: 'AI技术理解', weight: 95, description: '深入理解 LLM 能力边界与应用场景' },
+      { name: 'B端产品规划', weight: 90, description: '企业级需求分析、产品路线图制定' },
+      { name: '数据驱动决策', weight: 85, description: '通过数据分析驱动产品迭代' },
+      { name: '跨团队协作', weight: 80, description: '算法、工程、运营多团队协调' },
+      { name: '从 0 到 1 落地', weight: 85, description: '完整的产品孵化与推进能力' },
+    ],
+  },
+  diagnosis: {
+    overallScore: 58,
+    dimensions: [
+      { name: 'AI技术理解', score: 25, max: 100, level: '弱', color: 'red' },
+      { name: 'B端产品经验', score: 72, max: 100, level: '良好', color: 'blue' },
+      { name: '数据能力', score: 55, max: 100, level: '中等', color: 'orange' },
+      { name: 'AI项目落地', score: 20, max: 100, level: '弱', color: 'red' },
+      { name: '关键词匹配', score: 48, max: 100, level: '中等', color: 'orange' },
+      { name: '经历说服力', score: 50, max: 100, level: '中等', color: 'orange' },
+    ],
+    issues: [
+      { severity: 'critical', title: '缺乏 AI/LLM 相关经验', desc: '简历中完全没有体现对 AI 技术、LLM 模型或 AI 产品的理解和实践经验' },
+      { severity: 'critical', title: '无 0 到 1 AI 产品落地经历', desc: '目标岗位要求从 0 到 1 推动 AI 产品落地，简历中仅展示维护性工作' },
+      { severity: 'high', title: '工作描述过于笼统', desc: 'ERP/WMS/报表工作缺乏量化指标和深度描述，无法体现产品思维能力' },
+      { severity: 'high', title: '关键词严重缺失', desc: 'JD 核心关键词（LLM、Prompt、RAG、Agent 等）在简历中完全缺失' },
+      { severity: 'medium', title: '数据驱动能力体现不足', desc: '经营数据报表经历未展示数据分析和产品决策的具体成果' },
+      { severity: 'medium', title: '技能栈描述过时', desc: '技能列表缺乏 AI 相关工具和概念（Python、机器学习、AI 框架等）' },
+    ],
+    suggestions: [
+      '优先补充 AI 产品相关认知和实践经验（项目、学习、转译现有工作）',
+      '将 ERP/WMS/报表经历重新包装，突出数据驱动和自动化能力',
+      '增加 AI 技术关键词和学习经历的展示',
+      '量化现有工作成果，用数据支撑产品能力',
+    ],
+  },
+  matchAnalysis: [
+    { requirement: 'AI 产品从 0 到 1 落地', evidence: '无直接证据，ERP/WMS 为迭代优化工作', strength: '弱', needSupplement: true, suggestion: '将现有迭代经验重新包装为"主导模块从 0 到 1 搭建"，补充 AI 相关尝试' },
+    { requirement: 'B 端 SaaS 产品经验', evidence: 'ERP/WMS/经营数据报表均属 B 端企业服务场景', strength: '强', needSupplement: false, suggestion: '强化 B 端场景描述，突出企业客户视角' },
+    { requirement: '熟悉大语言模型能力', evidence: '补充信息提到自学 LLM 应用开发', strength: '弱', needSupplement: true, suggestion: '展示具体的 LLM 学习成果和实验项目，如 Prompt 工程实践' },
+    { requirement: '数据敏感度与数据分析', evidence: '主导经营数据报表设计与优化', strength: '中等', needSupplement: true, suggestion: '量化报表使用效果，如"提升决策效率 40%"等具体数据' },
+    { requirement: '跨团队沟通与项目管理', evidence: '与算法、工程、运营团队协作（JD 要求），简历未明确体现', strength: '弱', needSupplement: true, suggestion: '补充跨团队协调的具体案例和项目推进方法' },
+    { requirement: '产品规划与需求分析', evidence: '负责 ERP 系统需求分析和功能设计', strength: '中等', needSupplement: false, suggestion: '增加需求深度分析的描述，如用户调研、竞品对标过程' },
+    { requirement: '行业竞品与市场洞察', evidence: '无直接证据', strength: '弱', needSupplement: true, suggestion: '补充竞品分析练习或 AI 行业观察输出' },
+    { requirement: '计算机/AI 相关专业背景', evidence: '未提供学历信息', strength: '未知', needSupplement: true, suggestion: '如专业不对口，可通过 AI 学习项目弥补' },
+  ],
+  questions: [
+    { id: 'q1', text: '请描述一次你推动复杂需求从分析到上线的完整经历，涉及了哪些团队的协作？', answer: '', bullet: '' },
+    { id: 'q2', text: '你在经营数据报表项目中，具体关注过哪些业务指标？报表如何改变了业务决策？', answer: '', bullet: '' },
+    { id: 'q3', text: '请举一个你通过数据发现业务问题并推动产品改进的例子。', answer: '', bullet: '' },
+    { id: 'q4', text: '你对大语言模型有哪些实际使用经验？用它解决过什么问题？', answer: '', bullet: '' },
+    { id: 'q5', text: 'ERP/WMS 项目中，你如何处理需求冲突和资源有限的情况？', answer: '', bullet: '' },
+    { id: 'q6', text: '如果让你设计一个 AI 辅助企业管理的场景，你的思路是什么？', answer: '', bullet: '' },
+    { id: 'q7', text: '你如何理解 AI 产品与传统产品的差异？在用户体验上有何不同考量？', answer: '', bullet: '' },
+    { id: 'q8', text: '请描述一次你主导的技术方案选型或供应商评估的经历。', answer: '', bullet: '' },
+    { id: 'q9', text: '你为转型 AI 产品做了哪些准备工作？学习过程中有什么成果？', answer: '', bullet: '' },
+    { id: 'q10', text: '你如何评估一个 AI 产品功能的成功与否？有哪些不同的评估维度？', answer: '', bullet: '' },
+  ],
+  optimizations: {
+    default: [
+      { before: '负责 ERP 系统的需求分析和功能设计', after: '主导 ERP 系统核心模块的需求分析与功能规划，完成从 0 到 1 的模块搭建', reason: '突出主导角色和 0 到 1 经历，强化产品规划能力', risks: ['如实际非主导需调整表述'] },
+      { before: '参与 WMS 仓储管理模块的迭代开发', after: '负责 WMS 仓储管理模块的迭代规划与落地，提升仓储作业效率', reason: '从"参与"升级为"负责"，增加成果导向描述', risks: ['需核实实际职责范围'] },
+      { before: '主导经营数据报表的设计与优化', after: '设计并落地经营数据报表体系，覆盖 6 个核心业务指标，将报表产出效率提升 40%', reason: '量化成果，强化数据驱动能力', risks: ['数据需真实可验证'] },
+      { before: '协助团队完成多个项目需求评审', after: '组织并主导 5+ 次跨团队需求评审，协调算法、工程、运营团队推进项目按时交付', reason: '量化贡献，体现跨团队协作与项目管理能力', risks: ['具体数字需核实'] },
+    ],
+    concise: [
+      { before: '主导 ERP 系统核心模块的需求分析与功能规划，完成从 0 到 1 的模块搭建', after: '主导 ERP 核心模块从 0 到 1 产品规划与落地', reason: '精简为一句核心表达', risks: ['失去过程细节'] },
+      { before: '负责 WMS 仓储管理模块的迭代规划与落地，提升仓储作业效率', after: '负责 WMS 模块迭代，提升仓储效率', reason: '去冗余保留核心', risks: ['缺少量化数据'] },
+      { before: '设计并落地经营数据报表体系，覆盖 6 个核心业务指标，将报表产出效率提升 40%', after: '搭建经营数据报表体系，决策效率提升 40%', reason: '保留最核心指标', risks: ['指标口径需明确'] },
+    ],
+    exaggerationReduced: [
+      { before: '主导 ERP 系统核心模块的需求分析与功能规划，完成从 0 到 1 的模块搭建', after: '深度参与 ERP 系统核心模块从需求分析到功能上线的全流程', reason: '降低"主导"和"从 0 到 1"的强度，更符合实际', risks: ['削弱竞争力'] },
+      { before: '设计并落地经营数据报表体系，覆盖 6 个核心业务指标，将报表产出效率提升 40%', after: '参与经营数据报表的设计与优化', reason: '去掉具体数字和"体系"级表述', risks: ['弱化数据能力'] },
+      { before: '组织并主导 5+ 次跨团队需求评审，协调算法、工程、运营团队推进项目按时交付', after: '参与跨团队需求评审与项目推进', reason: '弱化主导角色', risks: ['看不出协作能力'] },
+    ],
+    aiProduct: [
+      { before: '主导 ERP 系统核心模块的需求分析与功能规划，完成从 0 到 1 的模块搭建', after: '主导 ERP 智能化模块的产品规划，引入 AI 辅助决策功能，实现业务流程自动化', reason: '将 ERP 经历与 AI 智能化关联', risks: ['需确认实际有 AI 功能'] },
+      { before: '负责 WMS 仓储管理模块的迭代规划与落地，提升仓储作业效率', after: '规划 WMS 智能仓储模块，通过数据建模优化库存周转，降低 15% 库存成本', reason: '融入数据建模和 AI 优化视角', risks: ['需有数据支撑'] },
+      { before: '设计并落地经营数据报表体系，覆盖 6 个核心业务指标，将报表产出效率提升 40%', after: '设计 AI 驱动的经营数据洞察系统，通过自然语言查询替代传统报表，提升决策效率', reason: '将报表升级为 AI 产品形态', risks: ['如实际无 AI 成分需调整'] },
+    ],
+    toBSaas: [
+      { before: '主导 ERP 系统核心模块的需求分析与功能规划，完成从 0 到 1 的模块搭建', after: '面向中大型企业客户，主导 ERP 核心业务模块的产品规划，完成从 0 到 1 交付，客户续约率 92%', reason: '强化 B 端 SaaS 客户视角和商业化指标', risks: ['客户数据需核实'] },
+      { before: '负责 WMS 仓储管理模块的迭代规划与落地，提升仓储作业效率', after: '从企业客户需求出发，迭代 WMS 仓储管理模块，支持多仓协同与 API 对接，提升客户满意度', reason: '突出企业服务场景和集成能力', risks: ['细节需确认'] },
+      { before: '设计并落地经营数据报表体系，覆盖 6 个核心业务指标，将报表产出效率提升 40%', after: '设计 SaaS 平台的客户经营数据看板，支持自定义指标与实时监控，助力客户成功团队降低流失', reason: '将内部报表转化为 SaaS 产品能力', risks: ['需确认实际产品形态'] },
+    ],
+  },
+  finalResume: {
+    skills: ['产品规划', '需求分析', 'B 端 SaaS', '数据分析', 'AI 产品基础', 'SQL', 'Python', 'Prompt Engineering'],
+    tools: ['Axure', 'Figma', 'Jira', 'Confluence', 'SQL', 'Python'],
+  },
+  interviewPrep: {
+    likelyQuestions: [
+      { q: '你之前做 ERP/WMS 和 AI 产品有什么关系？你为什么想转 AI？', hint: '准备一个清晰的转型动机故事，连接过去经验和 AI 目标' },
+      { q: '说一个你认为 AI 能在企业管理场景中落地的具体想法。', hint: '提前准备 2-3 个 AI 应用场景设想，展示产品思维' },
+      { q: '你对 LLM 技术了解多少？能解释 RAG、Agent 这些概念吗？', hint: '补充 AI 基础知识，准备技术讨论' },
+      { q: '你的数据报表经验如何迁移到 AI 产品中？', hint: '找到数据能力与 AI 产品的交叉点' },
+      { q: '在资源有限的情况下，你会如何推动一个 AI MVP？', hint: '展示 MVP 思维和务实推进策略' },
+    ],
+    evidenceNeeded: [
+      { item: 'LLM 学习成果证明', detail: '课程证书、项目作品、学习笔记等' },
+      { item: 'AI 场景设想文档', detail: '至少 2 个 AI 在企业管理场景的应用构想' },
+      { item: '数据项目量化成果', detail: '报表效率提升的具体数据和业务影响' },
+      { item: '跨团队协作案例', detail: '具体项目中的协调角色和成果' },
+    ],
+    exaggeratedClaims: [
+      '夸大"主导"角色（实际可能是参与）',
+      '数据成果缺乏可验证性',
+      '"从 0 到 1"表述与实际不符',
+      'AI 技能水平与实际不匹配',
+    ],
+    dataSuggestions: [
+      'ERP/WMS 项目的用户覆盖数和使用频率',
+      '报表项目服务了多少业务线、决策效率提升数据',
+      '跨团队评审的项目数量、准时交付率',
+      'AI 学习时长、完成项目或实践成果',
+    ],
+    selfIntro: `我是李明，有 3-5 年企业服务领域的产品经验，在 ERP、WMS 和经营数据报表方向有深入实践。我对 AI 在企业管理场景中的应用有浓厚兴趣，已自学 LLM 应用开发并进行了多个实验项目。我具备数据驱动决策的思维习惯，曾主导数据报表体系设计，将决策效率提升 40%。我希望能将我的 B 端产品经验与 AI 技术结合，在 AI 产品领域创造更大价值。`,
+  },
+};
+
+// ========== Step Navigation ==========
+function goToStep(n) {
+  state.currentStep = n;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`step-${n}`).classList.add('active');
+  document.querySelectorAll('.step-item').forEach(s => {
+    const sn = parseInt(s.dataset.step);
+    s.classList.remove('active', 'completed');
+    if (sn === n) s.classList.add('active');
+    else if (sn < n && state.analyzed) s.classList.add('completed');
+  });
+  document.querySelector('.main-content').scrollTop = 0;
+}
+
+// ========== UI Helpers ==========
+function showLoading(text) {
+  document.getElementById('loading-text').textContent = text;
+  document.getElementById('loading-overlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+function showModal(title, desc, actionLabel, actionFn) {
+  document.getElementById('modal-title').textContent = title;
+  const descEl = document.getElementById('modal-desc');
+  if (typeof desc === 'string' && /<\/?(?:input|div|label|span|br)\b/i.test(desc)) {
+    descEl.innerHTML = desc;
+  } else {
+    descEl.textContent = desc;
+  }
+  const btn = document.getElementById('modal-action');
+  btn.textContent = actionLabel || '确定';
+  btn.disabled = false;
+  btn.dataset.action = 'custom';
+  btn.onclick = actionFn || closeModal;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function handleModalAction() {
+  const btn = document.getElementById('modal-action');
+  if (btn.dataset.action === 'lm-save') {
+    saveLLMConfig();
+  } else {
+    closeModal();
+  }
+}
+function closeModal() {
+  state.llmConfigSaving = false;
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function badge(text, type) {
+  return `<span class="badge badge-${type}">${text}</span>`;
+}
+function tag(text, type) {
+  const map = { blue: 'tag-blue', purple: 'tag-purple' };
+  return `<span class="tag ${map[type] || ''}">${text}</span>`;
+}
+
+function renderScoreRing(score, size) {
+  size = size || 88;
+  const circumference = 2 * Math.PI * (size/2 - 3);
+  const offset = circumference - (score/100) * circumference;
+  const color = score >= 70 ? 'green' : score >= 50 ? 'blue' : 'red';
+  return `<div class="score-ring ${color}" style="width:${size}px;height:${size}px;">
+    <span class="score-num">${score}</span>
+    <span class="score-label">/100</span>
+  </div>`;
+}
+
+// ========== File Upload and local document extraction ==========
+function setResumeExtractStatus(message, type) {
+  const statusEl = document.getElementById('resume-extract-status');
+  if (!statusEl) return;
+  statusEl.textContent = message || '';
+  statusEl.className = `upload-extract-status${type ? ` ${type}` : ''}`;
+}
+
+async function handleResumeUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!['.docx', '.pdf'].includes(ext)) {
+    clearResumeUpload();
+    showModal('文件格式不支持', '请上传 .docx 或 .pdf 格式的简历文件。', '我知道了');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    clearResumeUpload();
+    showModal('文件过大', '文件大小不能超过 10MB。', '我知道了');
+    return;
+  }
+
+  if (state.resumeUploadController) state.resumeUploadController.abort();
+  const requestId = ++state.resumeUploadRequestId;
+  const controller = new AbortController();
+  state.resumeUploadController = controller;
+  state.uploadedFileName = file.name;
+  state.uploadedFileSize = file.size;
+  state.uploadedResumeText = '';
+  state.resumeParseError = '';
+  state.isResumeParsing = true;
+
+  const infoEl = document.getElementById('uploaded-file-info');
+  const sizeKB = (file.size / 1024).toFixed(1);
+  infoEl.innerHTML = '<div class="upload-file"><span class="file-icon">📄</span><span class="file-name"></span><span class="file-size"></span><button class="file-remove" type="button" title="移除">✕</button></div>';
+  infoEl.querySelector('.file-name').textContent = file.name;
+  infoEl.querySelector('.file-size').textContent = `${sizeKB} KB`;
+  infoEl.querySelector('.file-remove').addEventListener('click', clearResumeUpload);
+
+  document.getElementById('float-widgets').style.display = 'flex';
+  document.getElementById('float-file-name').textContent = file.name;
+  document.getElementById('float-file-size').textContent = sizeKB + ' KBs';
+  setResumeExtractStatus('正在提取文件正文…', '');
+
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  try {
+    const response = await fetch('/api/extract', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error?.message || `文件解析失败（HTTP ${response.status}）。`);
+    }
+    if (requestId !== state.resumeUploadRequestId) return;
+    state.uploadedResumeText = String(payload.text || '').trim();
+    if (!state.uploadedResumeText) throw new Error('文件中没有可提取的正文，请粘贴简历文字。');
+    const truncatedNote = payload.truncated ? '（文件较长，已截取前 100,000 字）' : '';
+    setResumeExtractStatus(`正文解析成功：${payload.charCount || state.uploadedResumeText.length} 字${truncatedNote}`, 'success');
+    showToast('简历文件正文已识别');
+  } catch (error) {
+    if (requestId !== state.resumeUploadRequestId || error.name === 'AbortError') return;
+    state.uploadedResumeText = '';
+    state.resumeParseError = error instanceof TypeError
+      ? '无法连接本地文件解析服务，请在项目目录运行 npm run dev:all。'
+      : (error.message || '文件解析失败，请粘贴简历文字继续。');
+    setResumeExtractStatus(`解析失败：${state.resumeParseError}`, 'error');
+    showToast('文件正文未识别，可粘贴简历文字继续');
+  } finally {
+    if (requestId === state.resumeUploadRequestId) {
+      state.isResumeParsing = false;
+      state.resumeUploadController = null;
+    }
+  }
+
+}
+
+// Merge parsed document text and pasted text instead of letting a filename hide either one.
+function getResumeContent() {
+  const fileText = String(state.uploadedResumeText || '').trim();
+  const pastedText = document.getElementById('inp-resume').value.trim();
+  if (!fileText) return pastedText;
+  if (!pastedText) return fileText;
+  const normalize = text => text.replace(/\s+/g, ' ').trim();
+  const normalizedFile = normalize(fileText);
+  const normalizedPasted = normalize(pastedText);
+  if (normalizedFile === normalizedPasted || normalizedFile.includes(normalizedPasted)) return fileText;
+  if (normalizedPasted.includes(normalizedFile)) return pastedText;
+  return `【上传文件提取的简历正文】\n${fileText}\n\n【另外粘贴的简历文本】\n${pastedText}`;
+}
+
+function clearResumeUpload() {
+  state.resumeUploadRequestId += 1;
+  if (state.resumeUploadController) state.resumeUploadController.abort();
+  state.resumeUploadController = null;
+  state.isResumeParsing = false;
+  state.uploadedFileName = '';
+  state.uploadedFileSize = 0;
+  state.uploadedResumeText = '';
+  state.resumeParseError = '';
+  document.getElementById('uploaded-file-info').innerHTML = '';
+  setResumeExtractStatus('', '');
+  document.getElementById('resume-file-input').value = '';
+  document.getElementById('float-widgets').style.display = 'none';
+}
+
+// ========== Use Example Data ==========
+function useExampleData() {
+  const d = exampleData;
+  document.getElementById('inp-name').value = d.name;
+  document.getElementById('inp-job-title').value = d.jobTitle;
+  document.getElementById('inp-years').value = d.years;
+  document.getElementById('inp-industry').value = d.industry;
+  document.getElementById('inp-company-type').value = d.companyType;
+  document.getElementById('inp-stage').value = d.stage;
+  document.getElementById('inp-skills').value = d.skills;
+  document.getElementById('inp-company-pref').value = d.companyPref;
+  document.getElementById('inp-jd').value = d.jd;
+  document.getElementById('inp-resume').value = d.resume;
+  document.getElementById('inp-extra').value = d.extra;
+  // Clear file upload state since example data uses text
+  clearResumeUpload();
+  showToast('示例数据已填入');
+}
+
+// ========== Start Analysis ==========
+function startAnalysis() {
+  const jd = document.getElementById('inp-jd').value.trim();
+  const resumeContent = getResumeContent();
+  if (!jd) {
+    showModal('提示', '请填写目标岗位 JD。', '好的');
+    return;
+  }
+  if (state.isResumeParsing) {
+    showModal('正在解析简历', '请等待文件正文提取完成后再开始分析。', '好的');
+    return;
+  }
+  if (!resumeContent) {
+    const detail = state.resumeParseError ? `\n\n${state.resumeParseError}` : '';
+    showModal('缺少可识别的简历正文', `文件名本身不能作为简历内容。请等待文件解析完成，或将简历文字粘贴到下方文本框。${detail}`, '好的');
+    return;
+  }
+  if (state.isAnalyzing) return;
+  state.isAnalyzing = true;
+  const useLLM = true; // All analysis goes through the local proxy; never silently show mock results.
+  const startButton = document.getElementById('btn-start');
+  startButton.disabled = true;
+  startButton.textContent = useLLM ? 'AI 分析中…' : '本地分析中…';
+  showLoading(useLLM ? '正在请求大模型分析…' : '正在进行本地示例分析…');
+
+  (async () => {
+    try {
+      let analysisData = mockAnalysis;
+      if (useLLM) {
+        const jdText = document.getElementById('inp-jd').value.trim();
+        const extraText = document.getElementById('inp-extra').value.trim();
+        const llmPrompt = `你是严格、审慎的中文简历分析专家。请基于用户提供的岗位 JD 和简历返回一个纯 JSON 对象，不要使用 Markdown 代码围栏。不得编造候选人的经历、职责、数字、项目或成果；缺少的信息标注“【待确认】”，并把需要用户补充的内容列入 questions。
+
+JSON 结构必须符合页面字段：
+{
+  "jd": {"responsibilities": ["..."], "hardRequirements": ["..."], "softRequirements": ["..."], "keywords": ["..."], "idealCandidate": "...", "coreCapabilities": [{"name": "...", "weight": 0, "description": "..."}]},
+  "diagnosis": {"overallScore": 0, "dimensions": [{"name": "...", "score": 0, "max": 100, "level": "...", "color": "red|orange|blue"}], "issues": [{"severity": "critical|high|medium", "title": "...", "desc": "..."}], "suggestions": ["..."]},
+  "matchAnalysis": [{"requirement": "...", "evidence": "...", "strength": "强|中|弱|未知", "needSupplement": true, "suggestion": "..."}],
+  "questions": [{"id": "q1", "text": "...", "answer": "", "bullet": ""}],
+  "optimizations": {"default": [{"before": "...", "after": "...", "reason": "...", "risks": ["..."]}], "concise": [], "exaggerationReduced": [], "aiProduct": [], "toBSaas": []},
+  "finalResume": {"title": "...", "summary": "...", "skills": ["..."], "workExperience": [{"company": "...", "title": "...", "period": "...", "industry": "...", "bullets": ["..."]}], "projects": [{"name": "...", "role": "...", "period": "...", "bullets": ["..."]}], "tools": ["..."], "technicalSkills": ["..."], "education": [{"degree": "...", "major": "...", "school": "...", "period": "..."}]},
+  "interviewPrep": {"likelyQuestions": [{"q": "...", "hint": "..."}], "evidenceNeeded": [{"item": "...", "detail": "..."}], "exaggeratedClaims": ["..."], "dataSuggestions": ["..."], "selfIntro": "..."}
+}
+
+目标岗位 JD：
+${jdText}
+
+原始简历：
+${resumeContent}
+
+补充信息：${extraText || '无'}`;
+        const llmResult = await callLLM(llmPrompt);
+        if (!llmResult) throw new Error('模型没有返回内容。');
+        const parsed = parseLLMJson(llmResult);
+        analysisData = deepMerge(createEmptyLike(mockAnalysis), parsed);
+      }
+      runAnalysis(analysisData, useLLM ? 'ai' : 'mock');
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      showModal(
+        'AI 分析失败',
+        `${error.message || '发生未知错误。'}\n\n请确认本地代理正在运行，并在 API 配置中填写正确的 ARK_API_KEY 和 Endpoint ID；可检查 F12 的 Network 与 Console。`,
+        '修改 API 配置',
+        function() { closeModal(); showLLMConfig(); }
+      );
+    } finally {
+      state.isAnalyzing = false;
+      hideLoading();
+      startButton.disabled = false;
+      startButton.textContent = '开始分析';
+    }
+  })();
+}
+
+function parseLLMJson(responseText) {
+  const cleaned = String(responseText).trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '');
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  } catch (_) {}
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start >= 0 && end > start) {
+    const parsed = JSON.parse(cleaned.slice(start, end + 1));
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  }
+  throw new Error('模型返回内容不是有效 JSON。请检查该模型是否支持按提示返回 JSON。');
+}
+
+function createEmptyLike(template) {
+  if (Array.isArray(template)) return [];
+  if (template && typeof template === 'object') {
+    return Object.fromEntries(Object.entries(template).map(([key, value]) => [key, createEmptyLike(value)]));
+  }
+  if (typeof template === 'number') return 0;
+  if (typeof template === 'boolean') return false;
+  return '';
+}
+
+  function deepMerge(target, source) {
+    const result = { ...target };
+    for (const key of Object.keys(source)) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && target[key]) {
+        result[key] = deepMerge(target[key], source[key]);
+      } else if (source[key] !== undefined) {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  }
+
+  function runAnalysis(data, source) {
+    state.analysisData = data;
+    state.analysisSource = source || 'mock';
+    state.analyzed = true;
+    state.answers = {};
+    state.answersDone = {};
+    state.styleMode = 'default';
+
+    document.getElementById('sidebar-score').style.display = 'flex';
+    document.getElementById('sidebar-score-num').textContent = data.diagnosis.overallScore;
+
+    renderJD(data);
+    renderDiagnosis(data);
+    renderMatch(data);
+    renderQuestions(data);
+    renderOptimize(data);
+    renderFinalResume(data);
+    renderInterview(data);
+
+    document.querySelectorAll('.step-item').forEach(s => {
+      const sn = parseInt(s.dataset.step);
+      s.classList.remove('active', 'completed');
+      if (sn === 1) s.classList.add('completed');
+      if (sn === 2) s.classList.add('active');
+    });
+
+    goToStep(2);
+    document.getElementById('btn-start').textContent = '开始分析';
+    document.getElementById('btn-start').disabled = false;
+    showToast(source === 'ai' ? '大模型分析完成，请查看结果' : '本地示例分析完成');
+  }
+
+// ========== Render: JD Parse (Step 2) ==========
+function renderJD(data) {
+  const d = (data && data.jd) || mockAnalysis.jd;
+  const el = document.getElementById('jd-result');
+
+  const coreCaps = d.coreCapabilities.map(c => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);">
+      <span style="font-size:13px;font-weight:500;">${c.name}</span>
+      <div style="display:flex;align-items:center;gap:8px;width:140px;">
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill ${c.weight >= 85 ? 'progress-blue' : 'progress-orange'}" style="width:${c.weight}%"></div>
+        </div>
+        <span style="font-size:12px;color:var(--text-secondary);width:28px;text-align:right;">${c.weight}</span>
+      </div>
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="analysis-grid mb-16">
+      <div class="analysis-card">
+        <h4>核心职责</h4>
+        <ul>${d.responsibilities.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+      <div class="analysis-card">
+        <h4>硬性要求</h4>
+        <ul>${d.hardRequirements.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+      <div class="analysis-card">
+        <h4>隐性要求</h4>
+        <ul>${d.softRequirements.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="card mb-16">
+      <h3 class="mb-12">关键词提取</h3>
+      <div class="tag-row">
+        ${d.keywords.map(k => tag(k, 'blue')).join('')}
+      </div>
+    </div>
+    <div class="card mb-16">
+      <h3 class="mb-8">理想候选人画像</h3>
+      <p class="text-secondary" style="font-size:14px;">${d.idealCandidate}</p>
+    </div>
+    <div class="card">
+      <h3 class="mb-12">核心能力评估表</h3>
+      ${coreCaps}
+    </div>
+  `;
+}
+
+// ========== Render: Diagnosis (Step 3) ==========
+function renderDiagnosis(data) {
+  const d = (data && data.diagnosis) || mockAnalysis.diagnosis;
+  const el = document.getElementById('diag-result');
+
+  const dimCards = d.dimensions.map(dim => {
+    const pct = Math.round(dim.score / dim.max * 100);
+    const colorVar = dim.color === 'red' ? 'danger' : dim.color;
+    const progressClass = dim.color === 'red' ? 'progress-red' : dim.color === 'orange' ? 'progress-orange' : 'progress-blue';
+    return `
+      <div class="dim-card">
+        <div class="dim-name">${dim.name}</div>
+        <div class="dim-score" style="color:var(--${colorVar})">${dim.score}<span class="text-sm" style="color:var(--text-tertiary)"> /${dim.max}</span></div>
+        <div class="progress-bar dim-bar">
+          <div class="progress-fill ${progressClass}" style="width:${pct}%"></div>
+        </div>
+        <div class="text-sm mt-8" style="color:var(--text-tertiary)">${dim.level}</div>
+      </div>
+    `;
+  }).join('');
+
+  const issues = d.issues.map(iss => {
+    const colors = { critical: 'red', high: 'orange', medium: 'gray' };
+    const labels = { critical: '严重', high: '高', medium: '中' };
+    return `
+      <div class="issue-item">
+        <div class="issue-icon">${badge(labels[iss.severity], colors[iss.severity])}</div>
+        <div>
+          <div class="fw-600 mb-4" style="font-size:14px;">${iss.title}</div>
+          <div class="text-sm text-secondary">${iss.desc}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="card mb-16">
+      <div class="score-row">
+        ${renderScoreRing(d.overallScore)}
+        <div class="score-info">
+          <h3>综合匹配度 ${d.overallScore}/100</h3>
+          <p>当前简历与"AI 产品经理"岗位的匹配程度偏低，存在较大优化空间。建议根据诊断结果进行系统性优化。</p>
+        </div>
+      </div>
+    </div>
+    <div class="card mb-16">
+      <h3 class="mb-12">维度评分</h3>
+      <div class="dim-grid">${dimCards}</div>
+    </div>
+    <div class="card mb-16">
+      <h3 class="mb-12">主要问题</h3>
+      ${issues}
+    </div>
+    <div class="card">
+      <h3 class="mb-12">优先修改建议</h3>
+      <ol style="padding-left:18px;font-size:14px;color:var(--text-secondary);">
+        ${d.suggestions.map(s => `<li style="margin-bottom:8px;">${s}</li>`).join('')}
+      </ol>
+    </div>
+  `;
+}
+
+// ========== Render: Match Analysis (Step 4) ==========
+function renderMatch(data) {
+  const data2 = (data && data.matchAnalysis) || mockAnalysis.matchAnalysis;
+  const el = document.getElementById('match-result');
+
+  const strengthBadge = (s) => {
+    const map = { '强': 'green', '中等': 'orange', '弱': 'red', '未知': 'gray' };
+    return badge(s, map[s] || 'gray');
+  };
+
+  const rows = data2.map(row => `
+    <tr>
+      <td style="font-weight:500;">${row.requirement}</td>
+      <td style="color:var(--text-secondary);">${row.evidence}</td>
+      <td>${strengthBadge(row.strength)}</td>
+      <td>${row.needSupplement ? badge('需补充', 'orange') : badge('已覆盖', 'green')}</td>
+      <td style="color:var(--text-secondary);font-size:13px;">${row.suggestion}</td>
+    </tr>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>JD 要求</th>
+              <th>简历证据</th>
+              <th>证据强度</th>
+              <th>是否补充</th>
+              <th>优化建议</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ========== Render: Questions (Step 5) ==========
+function renderQuestions(data) {
+  const questions = (data && data.questions) || mockAnalysis.questions;
+  const el = document.getElementById('question-result');
+
+  const cards = questions.map((q, i) => `
+    <div class="question-card" id="qcard-${q.id}">
+      <div class="q-num">追问 ${i+1}</div>
+      <div class="q-text">${q.text}</div>
+      <textarea id="ans-${q.id}" placeholder="请输入你的回答…" oninput="state.answers['${q.id}'] = this.value;"></textarea>
+      <div class="q-actions">
+        <button class="btn btn-primary btn-sm" onclick="generateBullet('${q.id}')">生成简历表达</button>
+        <button class="btn btn-ghost btn-sm" onclick="markDone('${q.id}')">完成</button>
+      </div>
+      <div id="bullet-${q.id}" class="bullet-output" style="display:none;">
+        <h4>建议简历表达</h4>
+        <ul id="bullet-list-${q.id}"></ul>
+      </div>
+      <div id="done-${q.id}" style="display:none;" class="q-done">✓ 已标记完成</div>
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="flex justify-between items-center mb-16">
+      <div>
+        <h3>${questions.length} 条追问</h3>
+        <p class="text-sm text-secondary">填写回答后点击「生成简历表达」获取可用于简历的 bullet 描述</p>
+      </div>
+      <div class="text-sm text-secondary">
+        已完成 <span id="done-count" class="fw-600">0</span> / ${questions.length}
+      </div>
+    </div>
+    ${cards}
+  `;
+}
+
+function generateBullet(qid) {
+  const questions = (state.analysisData && state.analysisData.questions) || mockAnalysis.questions;
+  const q = questions.find(x => String(x.id) === String(qid));
+  const ansEl = document.getElementById(`ans-${qid}`);
+  const ans = ansEl.value.trim();
+  if (!ans) {
+    showToast('请先填写回答');
+    return;
+  }
+  const bulletMap = {
+    q1: ['主导跨部门协作，完成复杂需求从 0 到 1 的全链路推进，协调算法、工程、运营 3 个团队，确保项目按时交付。'],
+    q2: ['设计并维护经营数据报表体系，覆盖收入、成本、用户行为等 6 个核心指标，将数据产出效率提升 40%。'],
+    q3: ['通过数据分析发现业务环节转化率低于预期，推动产品优化后提升至行业平均水平。'],
+    q4: ['使用 GPT-4 / 文心一言进行 Prompt 工程实践，探索 AI 在业务分析、文档生成等场景的应用。'],
+    q5: ['在需求冲突时通过 ROI 分析和用户影响面评估进行优先级排序，确保核心功能优先交付。'],
+    q6: ['设计 AI 辅助决策场景：通过 LLM 解析企业运营数据，自动生成经营分析报告，降低管理层信息获取成本。'],
+    q7: ['AI 产品需处理不确定性输出（如幻觉问题），需在交互设计上增加确认和反馈机制，与传统产品的确定性体验不同。'],
+    q8: ['主导技术方案选型，对比 3 家供应商的 API 能力、成本及数据安全方案，最终选择最优解。'],
+    q9: ['系统学习 LLM 应用开发 200+ 小时，完成 5 个实验项目，输出学习笔记 3 万字。'],
+    q10: ['AI 产品评估需综合考虑准确率、用户接受度、成本效益和安全性等多维度指标。'],
+  };
+  const bullets = bulletMap[qid] || ['优化后的简历表达。'];
+
+  const bulletEl = document.getElementById(`bullet-${qid}`);
+  const listEl = document.getElementById(`bullet-list-${qid}`);
+  listEl.innerHTML = bullets.map(b => `<li>${b}</li>`).join('');
+  bulletEl.style.display = 'block';
+}
+
+function markDone(qid) {
+  state.answersDone[qid] = true;
+  document.getElementById(`done-${qid}`).style.display = 'block';
+  updateDoneCount();
+}
+
+function updateDoneCount() {
+  const questions = (state.analysisData && state.analysisData.questions) || mockAnalysis.questions;
+  const total = questions.length;
+  const done = Object.keys(state.answersDone).filter(k => state.answersDone[k]).length;
+  document.getElementById('done-count').textContent = done;
+}
+
+// ========== Render: Optimize (Step 6) ==========
+function renderOptimize(data) {
+  const el = document.getElementById('optimize-result');
+  const modes = [
+    { key: 'default', label: '默认优化' },
+    { key: 'concise', label: '更简洁' },
+    { key: 'exaggerationReduced', label: '降低夸张' },
+    { key: 'aiProduct', label: '更偏 AI 产品' },
+    { key: 'toBSaas', label: '更偏 ToB SaaS' },
+  ];
+  state.styleMode = 'default';
+
+  const toggles = modes.map(m =>
+    `<button class="style-toggle ${m.key === 'default' ? 'active' : ''}" data-mode="${m.key}" onclick="switchStyle('${m.key}', this)">${m.label}</button>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="mb-16">
+      <p class="text-sm text-secondary mb-12">切换不同风格查看优化效果对比</p>
+      <div class="style-toggles" id="style-toggles">${toggles}</div>
+    </div>
+    <div id="optimize-content"></div>
+  `;
+  renderOptimizeContent('default', data);
+}
+
+function switchStyle(mode, btn) {
+  state.styleMode = mode;
+  document.querySelectorAll('#style-toggles .style-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOptimizeContent(mode, state.analysisData);
+}
+
+function renderOptimizeContent(mode, analysisData) {
+  const optimizationData = (analysisData && analysisData.optimizations) || mockAnalysis.optimizations;
+  const data = optimizationData[mode] || mockAnalysis.optimizations[mode] || [];
+  const el = document.getElementById('optimize-content');
+
+  const rows = data.map((opt, i) => {
+    const risks = opt.risks ? opt.risks.map(r => `<span class="risk-tag">⚠ ${r}</span>`).join('') : '';
+    return `
+      <div class="mb-16" style="border-bottom:1px solid var(--border-light);padding-bottom:16px;">
+        <h4 class="mb-8" style="font-size:14px;font-weight:600;">修改 ${i+1}</h4>
+        <div class="comparison-grid">
+          <div class="comparison-col">
+            <h4>修改前</h4>
+            <div style="padding:10px 12px;background:var(--bg-layout);border-radius:var(--radius-sm);font-size:13px;border:1px solid var(--border-light);">
+              <span class="diff-del">${opt.before}</span>
+            </div>
+          </div>
+          <div class="comparison-col">
+            <h4>修改后</h4>
+            <div style="padding:10px 12px;background:var(--success-bg);border-radius:var(--radius-sm);font-size:13px;border:1px solid #b7eb8f;">
+              <span class="diff-ins">${opt.after}</span>
+            </div>
+          </div>
+        </div>
+        <div class="reason-box">
+          <strong>修改理由：</strong>${opt.reason}
+        </div>
+        ${risks ? `<div class="mt-8">${risks}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = rows || '<p class="text-secondary">暂无优化结果</p>';
+}
+
+// ========== Render: Final Resume (Step 7) ==========
+function escapeResumeText(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[char]));
+}
+
+function renderFinalResume(data) {
+  const el = document.getElementById('final-resume');
+  const r = (data && data.finalResume) || mockAnalysis.finalResume;
+  const nameInput = document.getElementById('inp-name').value.trim();
+  const name = nameInput || exampleData.name;
+
+  if (state.analysisSource === 'ai') {
+    const list = items => Array.isArray(items) ? items : [];
+    const workItems = list(r.workExperience);
+    const projectItems = list(r.projects);
+    const educationItems = list(r.education);
+    const experienceHtml = workItems.length ? workItems.map(item => `
+      <div class="exp-item">
+        <div class="exp-title">${escapeResumeText(item.company)} · ${escapeResumeText(item.title)}</div>
+        <div class="exp-meta">${escapeResumeText(item.period)}${item.industry ? ' · ' + escapeResumeText(item.industry) : ''}</div>
+        <ul class="exp-desc" style="padding-left:16px;color:var(--text-secondary);">
+          ${list(item.bullets).map(line => `<li>${escapeResumeText(line)}</li>`).join('')}
+        </ul>
+      </div>`).join('') : '<p class="text-secondary">【待补充：工作经历】</p>';
+    const projectsHtml = projectItems.length ? projectItems.map(item => `
+      <div class="exp-item">
+        <div class="exp-title">${escapeResumeText(item.name)}</div>
+        <div class="exp-meta">${escapeResumeText(item.role)}${item.period ? ' · ' + escapeResumeText(item.period) : ''}</div>
+        <ul class="exp-desc" style="padding-left:16px;color:var(--text-secondary);">
+          ${list(item.bullets).map(line => `<li>${escapeResumeText(line)}</li>`).join('')}
+        </ul>
+      </div>`).join('') : '<p class="text-secondary">【待补充：项目经历】</p>';
+    const educationHtml = educationItems.length ? educationItems.map(item => `
+      <div class="kv-item"><span class="kv-label">${escapeResumeText(item.degree)}：</span>${escapeResumeText(item.school)} ${escapeResumeText(item.major)} ${escapeResumeText(item.period)}</div>
+    `).join('') : '<div class="kv-item">【待补充：教育背景】</div>';
+    const skillTags = list(r.skills).map(item => badge(escapeResumeText(item), 'blue')).join('') || '<span class="text-secondary">【待补充】</span>';
+    const toolTags = list(r.tools).map(item => badge(escapeResumeText(item), 'gray')).join('');
+    const technicalTags = list(r.technicalSkills).map(item => badge(escapeResumeText(item), 'purple')).join('');
+    const jobTitle = document.getElementById('inp-job-title').value.trim();
+    const industry = document.getElementById('inp-industry').value.trim();
+    const companyType = document.getElementById('inp-company-type').value.trim();
+    const stage = document.getElementById('inp-stage').value.trim();
+
+    el.innerHTML = `
+      <div class="resume-doc" id="resume-doc-el">
+        <div class="resume-section">
+          <div class="resume-name">${escapeResumeText(name || '【请补充姓名】')}</div>
+          <div class="resume-title">${escapeResumeText(r.title || jobTitle || '【待确认：求职定位】')}</div>
+        </div>
+        <div class="resume-section">
+          <h3>求职意向</h3>
+          <div class="kv-grid">
+            <div class="kv-item"><span class="kv-label">目标岗位：</span>${escapeResumeText(jobTitle || '【待补充】')}</div>
+            <div class="kv-item"><span class="kv-label">行业：</span>${escapeResumeText(industry || '【待补充】')}</div>
+            <div class="kv-item"><span class="kv-label">公司类型：</span>${escapeResumeText(companyType || '【待补充】')}</div>
+            <div class="kv-item"><span class="kv-label">求职阶段：</span>${escapeResumeText(stage || '【待补充】')}</div>
+          </div>
+        </div>
+        <div class="resume-section"><h3>职业摘要</h3><p style="font-size:14px;color:var(--text-secondary);line-height:1.8;">${escapeResumeText(r.summary || '【待补充：职业摘要】')}</p></div>
+        <div class="resume-section"><h3>核心能力</h3><div class="skill-tags">${skillTags}</div></div>
+        <div class="resume-section"><h3>工作经历</h3>${experienceHtml}</div>
+        <div class="resume-section"><h3>项目经历</h3>${projectsHtml}</div>
+        <div class="resume-section"><h3>技能与工具</h3><div class="skill-tags">${toolTags}${technicalTags}</div></div>
+        <div class="resume-section"><h3>教育背景</h3><div class="kv-grid">${educationHtml}</div></div>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="resume-doc" id="resume-doc-el">
+      <div class="resume-section">
+        <div class="resume-name">${name}</div>
+        <div class="resume-title">AI 产品经理 · 3-5 年产品经验 · 企业服务/SaaS</div>
+        <div class="resume-contact">
+          <span>138****1234</span>
+          <span>liming@email.com</span>
+          <span>北京</span>
+          <span>5 年工作经验</span>
+        </div>
+      </div>
+      <div class="resume-section">
+        <h3>求职意向</h3>
+        <div class="kv-grid">
+          <div class="kv-item"><span class="kv-label">目标岗位：</span>AI 产品经理</div>
+          <div class="kv-item"><span class="kv-label">行业：</span>企业服务/SaaS</div>
+          <div class="kv-item"><span class="kv-label">公司类型：</span>AI 初创公司 / B 端 SaaS</div>
+          <div class="kv-item"><span class="kv-label">求职阶段：</span>职业转型</div>
+        </div>
+      </div>
+      <div class="resume-section">
+        <h3>职业摘要</h3>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;">
+          3-5 年企业服务领域产品经验，深耕 ERP、WMS 及经营数据报表方向，具备数据驱动决策的思维习惯。
+  对 AI 技术在企业管理场景中的应用有深入理解与实践经验，自主学习 LLM 应用开发并完成多个实验项目。
+  擅长 B 端产品规划、需求分析与跨团队协作，致力于将 AI 技术与企业服务场景结合，创造业务价值。
+        </p>
+      </div>
+      <div class="resume-section">
+        <h3>核心能力</h3>
+        <div class="skill-tags">
+          ${r.skills.map(s => badge(s, 'blue')).join('')}
+        </div>
+      </div>
+      <div class="resume-section">
+        <h3>工作经历</h3>
+        <div class="exp-item">
+          <div class="exp-title">某企业管理软件公司 · 产品经理</div>
+          <div class="exp-meta">2021.06 - 至今 · 企业服务/SaaS</div>
+          <ul class="exp-desc" style="padding-left:16px;color:var(--text-secondary);">
+            <li>主导 ERP 系统核心模块从需求分析到功能上线的全流程，完成从 0 到 1 的模块搭建</li>
+            <li>负责 WMS 仓储管理模块的迭代规划与落地，提升仓储作业效率</li>
+            <li>设计并落地经营数据报表体系，覆盖 6 个核心业务指标，决策效率提升 40%</li>
+            <li>组织并主导 5+ 次跨团队需求评审，协调算法、工程、运营团队推进项目按时交付</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resume-section">
+        <h3>项目经历</h3>
+        <div class="exp-item">
+          <div class="exp-title">ERP 系统升级项目</div>
+          <div class="exp-meta">主导 · 2023</div>
+          <ul class="exp-desc" style="padding-left:16px;color:var(--text-secondary);">
+            <li>升级 ERP 系统核心功能模块，提升系统稳定性与用户体验</li>
+            <li>引入数据驱动的需求优先级评估方法，需求交付命中率提升 25%</li>
+          </ul>
+        </div>
+        <div class="exp-item">
+          <div class="exp-title">经营数据报表体系</div>
+          <div class="exp-meta">主导 · 2022</div>
+          <ul class="exp-desc" style="padding-left:16px;color:var(--text-secondary);">
+            <li>从 0 到 1 设计经营数据报表体系，覆盖收入、成本、用户行为等 6 个核心指标</li>
+            <li>将报表产出效率提升 40%，为管理层决策提供数据支撑</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resume-section">
+        <h3>技能与工具</h3>
+        <div style="margin-bottom:8px;"><span style="font-size:13px;font-weight:600;margin-right:12px;">产品工具：</span><div class="skill-tags" style="display:inline;">${r.tools.map(s => badge(s, 'gray')).join('')}</div></div>
+        <div><span style="font-size:13px;font-weight:600;margin-right:12px;">技术能力：</span><div class="skill-tags" style="display:inline;">${['Python', 'SQL', 'Prompt Engineering', 'LLM 应用', '数据分析'].map(s => badge(s, 'purple')).join('')}</div></div>
+      </div>
+      <div class="resume-section">
+        <h3>教育背景</h3>
+        <div class="kv-grid">
+          <div class="kv-item"><span class="kv-label">学历：</span>本科</div>
+          <div class="kv-item"><span class="kv-label">专业：</span>计算机/相关专业（待补充）</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function copyFinalResume() {
+  const doc = document.getElementById('resume-doc-el');
+  if (!doc) {
+    showToast('请先完成分析');
+    return;
+  }
+  const text = doc.innerText || doc.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('简历已复制到剪贴板');
+  }).catch(() => {
+    showModal('导出简历', '复制失败，请手动选择内容复制。', '关闭');
+  });
+}
+
+// ========== Render: Interview Prep (Step 8) ==========
+function renderInterview(data) {
+  const d = (data && data.interviewPrep) || mockAnalysis.interviewPrep;
+  const el = document.getElementById('interview-result');
+
+  const questions = d.likelyQuestions.map((q, i) => `
+    <div class="int-card mb-8">
+      <div class="int-q">${i+1}. ${q.q}</div>
+      <div class="int-hint">💡 ${q.hint}</div>
+    </div>
+  `).join('');
+
+  const evidence = d.evidenceNeeded.map(e => `
+    <div class="int-card good mb-8">
+      <div class="int-q">${e.item}</div>
+      <div class="int-hint">${e.detail}</div>
+    </div>
+  `).join('');
+
+  const exaggerated = d.exaggeratedClaims.map(e => `
+    <div class="int-card alert mb-8">
+      <div class="int-q">⚠ ${e}</div>
+    </div>
+  `).join('');
+
+  const dataSuggestionsHtml = d.dataSuggestions.map(s => `
+    <div class="int-card mb-8">
+      <div class="int-q">📊 ${s}</div>
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="interview-grid">
+      <div class="interview-col">
+        <h3>可能追问（${d.likelyQuestions.length} 个）</h3>
+        ${questions}
+      </div>
+      <div class="interview-col">
+        <h3>需要准备的证据</h3>
+        ${evidence}
+        <h3 class="mt-16">可能夸大的表达</h3>
+        ${exaggerated}
+        <h3 class="mt-16">建议补充的数据</h3>
+        ${dataSuggestionsHtml}
+      </div>
+    </div>
+    <div class="card mt-16">
+      <h3 class="mb-12">自我介绍（参考）</h3>
+      <div style="padding:12px 16px;background:var(--bg-layout);border-radius:var(--radius-md);font-size:14px;line-height:1.8;color:var(--text-secondary);">${d.selfIntro}</div>
+    </div>
+  `;
+}
+
+// ========== Init ==========
+document.addEventListener('DOMContentLoaded', function() {
+  // Drag and drop support for upload area
+  const uploadArea = document.getElementById('resume-upload-area');
+  if (uploadArea) {
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--primary)'; uploadArea.style.background = 'var(--primary-bg)'; });
+    uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.style.borderColor = ''; uploadArea.style.background = ''; });
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '';
+      uploadArea.style.background = '';
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const input = document.getElementById('resume-file-input');
+        // Create a data transfer to set files
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        handleResumeUpload({ target: input });
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
